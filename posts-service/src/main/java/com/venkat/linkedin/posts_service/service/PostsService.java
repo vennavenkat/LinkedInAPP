@@ -1,5 +1,8 @@
 package com.venkat.linkedin.posts_service.service;
 
+import com.venkat.linkedin.posts_service.auth.UserContextHolder;
+import com.venkat.linkedin.posts_service.clients.ConnectionsClient;
+import com.venkat.linkedin.posts_service.dto.PersonDto;
 import com.venkat.linkedin.posts_service.dto.PostCreateRequestDto;
 import com.venkat.linkedin.posts_service.dto.PostDto;
 import com.venkat.linkedin.posts_service.entity.Post;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 public class PostsService {
     private final PostsRepository postsRepository;
     private final ModelMapper modelMapper;
+    private final ConnectionsClient connectionsClient;
     public PostDto createPost(PostCreateRequestDto postDto, Long userId) {
         Post post = modelMapper.map(postDto, Post.class);
         post.setUserId(userId);
@@ -30,6 +34,13 @@ public class PostsService {
 
     public PostDto getPostById(Long postId) {
         log.debug("Retriving post with ID: {}", postId);
+
+        Long userId = UserContextHolder.getCurrentUserId();
+
+        List<PersonDto> fistConnections = connectionsClient.getFirstConnections();
+
+        //TODO send Notifications all connections
+
         Post post =  postsRepository.findById(postId).orElseThrow(() ->
                new ResourceNotFoundException("Post not found with id: "+postId) );
         return modelMapper.map(post, PostDto.class);

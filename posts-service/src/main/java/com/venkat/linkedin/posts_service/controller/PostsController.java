@@ -1,5 +1,6 @@
 package com.venkat.linkedin.posts_service.controller;
 
+import com.venkat.linkedin.posts_service.auth.UserContextHolder;
 import com.venkat.linkedin.posts_service.dto.PostCreateRequestDto;
 import com.venkat.linkedin.posts_service.dto.PostDto;
 import com.venkat.linkedin.posts_service.entity.Post;
@@ -28,6 +29,9 @@ public class PostsController {
 
     @GetMapping("{postId}")
     public ResponseEntity<PostDto> getPost(@PathVariable Long postId){
+
+//        Long userId = UserContextHolder.getCurrentUserId();
+
         PostDto postDto = postsService.getPostById(postId);
         return ResponseEntity.ok(postDto);
     }
