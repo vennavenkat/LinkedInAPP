@@ -15,11 +15,10 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
     private final JwtService jwtService;
 
-    public AuthenticationFilter(JwtService jwtService){
+    public AuthenticationFilter(JwtService jwtService) {
         super(Config.class);
         this.jwtService = jwtService;
     }
-
 
     @Override
     public GatewayFilter apply(Config config) {
@@ -28,7 +27,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
 
             final String tokenHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
 
-            if (tokenHeader == null || tokenHeader.startsWith("Bearer")){
+            if(tokenHeader == null || !tokenHeader.startsWith("Bearer")) {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 log.error("Authorization token header not found");
                 return exchange.getResponse().setComplete();
@@ -43,19 +42,16 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<Authentic
                         .request(r -> r.header("X-User-Id", userId))
                         .build();
 
-
                 return chain.filter(modifiedExchange);
-            }catch (JwtException e){
+            } catch (JwtException e) {
                 log.error("JWT Exception: {}", e.getLocalizedMessage());
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             }
-
-
         };
     }
 
-    public static class Config{
-
+    public static class Config {
     }
 }
+

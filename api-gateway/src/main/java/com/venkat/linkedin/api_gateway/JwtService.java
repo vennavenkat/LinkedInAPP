@@ -15,11 +15,11 @@ public class JwtService {
     @Value("${jwt.secretKey}")
     private String jwtSecretKey;
 
-    private SecretKey getSecretKey(){
+    private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String getUserIdFromToken(String token){
+    public String getUserIdFromToken(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(getSecretKey())
                 .build()
@@ -27,4 +27,5 @@ public class JwtService {
                 .getPayload();
         return claims.getSubject();
     }
+
 }
