@@ -1,4 +1,4 @@
-package com.venkat.linkedInAPP.notification_service;
+package com.venkat.linkedin.notification_service;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
