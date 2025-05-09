@@ -1,58 +1,76 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: connections-db
+  name: neo4j
+  labels:
+    app: neo4j
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: connections-db
-  serviceName: connections-db
-  replicas: 2
+      app: neo4j
+  serviceName: "neo4j"
   template:
     metadata:
       labels:
-        app: connections-db
+        app: neo4j
     spec:
       containers:
-      - name: connections-db
-        image: neo4j
+      - name: neo4j
+        image: neo4j:4.4.39-community
         resources:
           limits:
-              memory: "200Mi"
-              cpu: "200m"
+            cpu: "200m"
+            memory: 4Gi
           requests:
-            memory: "100Mi"
-            cpu: "100m"
-        env:
-          - name: NEO4J_AUTH
-            value: neo4j/password
+            cpu: 100m
+            memory: 600Mi
         ports:
-        - containerPort: 7687
-          name: bolt
+        - containerPort: 7687 # Bolt
+        env:
+        - name: NEO4J_AUTH
+          value: "neo4j/password" # Change as per your setup
+        - name: NEO4J_dbms_memory_heap_initial__size
+          value: "512M"
+        - name: NEO4J_dbms_memory_heap_max__size
+          value: "2G"
+        - name: NEO4J_dbms_default__listen__address
+          value: "0.0.0.0"
+        - name: NEO4J_ACCEPT_LICENSE_AGREEMENT
+          value: "yes"
         volumeMounts:
-        - name: data
+        - name: neo4j-data
           mountPath: /data
+        - name: neo4j-logs
+          mountPath: /logs
   volumeClaimTemplates:
   - metadata:
-      name: data
+      name: neo4j-data
     spec:
-      accessModes: [ "ReadWriteOnce" ]
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 2Gi
+  - metadata:
+      name: neo4j-logs
+    spec:
+      accessModes: ["ReadWriteOnce"]
       resources:
         requests:
           storage: 1Gi
-      storageClassName: "standard-rwo" 
-      volumeMode: Filesystem
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
-  name: connections-db
+  name: neo4j
+  labels:
+    app: neo4j
 spec:
-  clusterIP: None
-  selector:
-    app: connections-db
+  clusterIP: None 
   ports:
   - port: 7687
     targetPort: 7687
+    name: bolt
+  selector:
+    app: neo4j
